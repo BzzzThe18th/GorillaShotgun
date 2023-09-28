@@ -13,7 +13,7 @@ namespace GorillaShotgun
     [ModdedGamemode]
     [BepInDependency("org.legoandmars.gorillatag.utilla", "1.6.7")]
     [BepInDependency("tonimacaroni.computerinterface", "1.5.4")]
-    [BepInDependency("com.buzzbzzzbzzbzzzthe18th.gorillatag.HoneyLib", "1.0.4")]
+    [BepInDependency("com.buzzbzzzbzzbzzzthe18th.gorillatag.HoneyLib", "1.0.9")]
     [BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
     public class Plugin : BaseUnityPlugin
     {
@@ -44,14 +44,19 @@ namespace GorillaShotgun
 
         void FixedUpdate()
         {
-            HoneyUtils.EasyInput.UpdateInput();
-
             if (Behaviours.ShotgunManager.instance != null)
             {
                 if (GorillaShotgun.Config.ShotgunConfig.enabled.Value)
                 {
-                    if (GorillaShotgun.Config.ShotgunConfig.isLeft.Value ? HoneyUtils.EasyInput.LeftGrip : HoneyUtils.EasyInput.RightGrip) shotgunParent?.SetActive(true);
-                    else if(!Behaviours.ShotgunManager.instance.doingSomething) shotgunParent?.SetActive(false);
+                    if (GorillaShotgun.Config.ShotgunConfig.isLeft.Value ? HoneyUtils.EasyInput.LeftGrip && !HoneyUtils.EasyInput.RightGrip : HoneyUtils.EasyInput.RightGrip && !HoneyUtils.EasyInput.LeftGrip) shotgunParent?.SetActive(true);
+                    else if (!Behaviours.ShotgunManager.instance.doingSomething)
+                    {
+                        shotgunParent?.SetActive(false);
+                        Behaviours.ShotgunManager.instance.chainFired = false;
+                        Behaviours.ShotgunManager.instance.chainHitPos = Vector3.zero;
+                        Behaviours.ShotgunManager.instance.chain.SetPositions(new Vector3[] { Behaviours.ShotgunManager.instance.chain.transform.position, Behaviours.ShotgunManager.instance.chainHitPos });
+                        Behaviours.ShotgunManager.instance.fireLock = false;
+                    }
                 }
                 else if (!Behaviours.ShotgunManager.instance.doingSomething) shotgunParent?.SetActive(false);
             }
